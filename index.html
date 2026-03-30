@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAP Automation - Solusi AI & Web Scraping</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fontsource Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Custom Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0B0F19',
+                            blue: '#1E3A8A',
+                            cyan: '#06B6D4',
+                            accent: '#3B82F6'
+                        }
+                    },
+                    backgroundImage: {
+                        'hero-pattern': "url('https://image.qwenlm.ai/public_source/86507a4a-5397-4f25-ac9e-b9a5e2934dce/10f16dca6-96ea-4343-a128-155d611d4e24.png')",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0B0F19;
+            color: #ffffff;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #3B82F6, #06B6D4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+        .available-badge {
+            background: linear-gradient(90deg, #10B981, #06B6D4);
+            animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+            }
+        }
+        .email-link {
+            transition: all 0.3s ease;
+        }
+        .email-link:hover {
+            color: #06B6D4;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-card border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 flex items-center gap-3">
+                    <img src="https://image.qwenlm.ai/public_source/86507a4a-5397-4f25-ac9e-b9a5e2934dce/18fcc221d-6b15-4770-9daf-aa67960e2c56.png" alt="LAP Logo" class="w-12 h-12 object-contain">
+                    <span class="font-bold text-xl tracking-wide hidden sm:block">LAP <span class="text-cyan-400">Automation</span></span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#home" class="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
+                        <a href="#services" class="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Layanan</a>
+                        <a href="#contact" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-all btn-glow">Hubungi Kami</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <!-- Background Overlay -->
+        <div class="absolute inset-0 bg-hero-pattern bg-cover bg-center opacity-20"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark/90 to-brand-dark"></div>
+        
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+            <div data-aos="fade-up" data-aos-duration="1000">
+                <img src="https://image.qwenlm.ai/public_source/86507a4a-5397-4f25-ac9e-b9a5e2934dce/18fcc221d-6b15-4770-9daf-aa67960e2c56.png" alt="LAP Automation Logo" class="w-32 h-32 mx-auto mb-6 object-contain drop-shadow-2xl">
+                <span class="inline-block py-1 px-3 rounded-full bg-blue-900/50 border border-blue-500/30 text-cyan-400 text-xs font-semibold tracking-wider mb-6">
+                    AUTOMASI MASA DEPAN
+                </span>
+                <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+                    Tingkatkan Efisiensi Bisnis Anda dengan <br>
+                    <span class="text-gradient">Kecerdasan Buatan</span>
+                </h1>
+                <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-400 mb-10">
+                    Layanan instalasi Openclaw profesional dan penyewaan AI Business Assistant All-in-One untuk mempercepat pertumbuhan bisnis Anda.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="#services" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-blue-500/30">
+                        Lihat Layanan
+                    </a>
+                    <a href="https://fastwork.id/user/lutfiahmad/ai-automation-64161051?source=seller-center_my-service" target="_blank" class="px-8 py-4 glass-card rounded-full font-bold text-lg hover:bg-white/10 transition-colors border border-white/20">
+                        Konsultasi Gratis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-20 bg-brand-dark relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Layanan Unggulan</h2>
+                <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-cyan-400 mx-auto rounded-full"></div>
+                <p class="mt-4 text-gray-400">Solusi teknis untuk kebutuhan data dan otomatisasi Anda.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Service 1: Openclaw -->
+                <div class="glass-card rounded-2xl p-8 hover:border-blue-500/50 transition-all duration-300 transform hover:-translate-y-2 group" data-aos="fade-right">
+                    <div class="w-14 h-14 bg-blue-900/50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-white">Install Openclaw</h3>
+                    <p class="text-gray-400 mb-6 leading-relaxed">
+                        Jasa instalasi Openclaw profesional. Dapatkan akses langsung ke alat scraping web yang powerful tanpa ribet setup teknis. Siap pakai untuk kebutuhan data mining Anda.
+                    </p>
+                    <ul class="space-y-2 mb-8 text-sm text-gray-300">
+                        <li class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Instalasi Cepat & Aman
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Panduan Penggunaan Lengkap
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Support Teknis
+                        </li>
+                    </ul>
+                    <a href="https://fastwork.id/user/lutfiahmad/ai-automation-64161051?source=seller-center_my-service" target="_blank" class="block w-full text-center py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-blue-900/20">
+                        Pesan Sekarang
+                    </a>
+                </div>
+
+                <!-- Service 2: AI Business Assistant -->
+                <div class="glass-card rounded-2xl p-8 relative overflow-hidden border border-green-500/50 hover:border-green-400 transition-all duration-300 transform hover:-translate-y-2 group" data-aos="fade-left">
+                    <!-- Available Badge -->
+                    <div class="absolute top-4 right-4 available-badge text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                        ✓ Tersedia
+                    </div>
+                    
+                    <div class="w-14 h-14 bg-green-900/50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-green-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-white">AI Business Assistant <span class="text-green-400 text-sm font-normal">(ALL-IN-ONE)</span></h3>
+                    <p class="text-gray-400 mb-6 leading-relaxed">
+                        Sewa bot AI pintar yang terintegrasi penuh untuk bisnis Anda. Menangani customer service, input data, dan analisis otomatis 24/7.
+                    </p>
+                    <ul class="space-y-2 mb-8 text-sm text-gray-300">
+                        <li class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Respon Otomatis 24/7
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Integrasi Multi-Platform
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Customizable Workflow
+                        </li>
+                    </ul>
+                    <a href="http://lynk.id/almud/nney2k0ln33w" target="_blank" class="block w-full text-center py-3 bg-gradient-to-r from-green-600 to-cyan-500 hover:from-green-500 hover:to-cyan-400 text-white font-semibold rounded-lg transition-all shadow-lg shadow-green-900/30 hover:scale-105">
+                        Sewa Sekarang
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="py-20 bg-gradient-to-b from-brand-dark to-blue-900/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="p-6" data-aos="zoom-in" data-aos-delay="0">
+                    <div class="text-4xl mb-4">🚀</div>
+                    <h4 class="text-xl font-bold mb-2">Efisiensi Tinggi</h4>
+                    <p class="text-gray-400 text-sm">Otomatisasi proses manual yang memakan waktu menjadi hitungan detik.</p>
+                </div>
+                <div class="p-6" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="text-4xl mb-4">🛡️</div>
+                    <h4 class="text-xl font-bold mb-2">Aman & Terpercaya</h4>
+                    <p class="text-gray-400 text-sm">Layanan profesional dengan jaminan keamanan data dan privasi.</p>
+                </div>
+                <div class="p-6" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="text-4xl mb-4">💰</div>
+                    <h4 class="text-xl font-bold mb-2">Hemat Biaya</h4>
+                    <p class="text-gray-400 text-sm">Solusi terjangkau dibandingkan merekrut tim khusus untuk tugas repetitif.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Admin Section -->
+    <section class="py-20 bg-brand-dark relative">
+        <div class="max-w-4xl mx-auto px-4 text-center" data-aos="fade-up">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Hubungi Admin</h2>
+            <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-cyan-400 mx-auto rounded-full mb-8"></div>
+            
+            <div class="glass-card rounded-2xl p-8 md:p-12">
+                <p class="text-gray-400 mb-6">Butuh bantuan atau ingin konsultasi lebih lanjut? Hubungi admin kami melalui email:</p>
+                
+                <a href="mailto:almudfaith@gmail.com" class="email-link inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-4 rounded-full font-bold text-lg text-white hover:from-blue-500 hover:to-cyan-400 transition-all shadow-lg shadow-blue-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    almudfaith@gmail.com
+                </a>
+                
+                <p class="text-gray-500 text-sm mt-6">Kami akan merespons dalam waktu 1x24 jam</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="contact" class="py-20 relative overflow-hidden">
+        <div class="absolute inset-0 bg-blue-600/10"></div>
+        <div class="max-w-4xl mx-auto px-4 text-center relative z-10" data-aos="fade-up">
+            <h2 class="text-3xl md:text-5xl font-bold mb-6">Siap Mengotomatisasi Bisnis Anda?</h2>
+            <p class="text-xl text-gray-300 mb-8">Jangan biarkan pekerjaan manual menghambat pertumbuhan Anda. Mulai sekarang dengan LAP Automation.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="http://lynk.id/almud/nney2k0ln33w" target="_blank" class="inline-block px-10 py-4 bg-gradient-to-r from-green-600 to-cyan-500 text-white font-bold rounded-full hover:from-green-500 hover:to-cyan-400 transition-all shadow-xl hover:scale-105">
+                    Sewa AI Assistant
+                </a>
+                <a href="https://fastwork.id/user/lutfiahmad/ai-automation-64161051?source=seller-center_my-service" target="_blank" class="inline-block px-10 py-4 glass-card text-white font-bold rounded-full hover:bg-white/10 transition-colors border border-white/20">
+                    Install Openclaw
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black py-8 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center gap-3 mb-4 md:mb-0">
+                <img src="https://image.qwenlm.ai/public_source/86507a4a-5397-4f25-ac9e-b9a5e2934dce/18fcc221d-6b15-4770-9daf-aa67960e2c56.png" alt="LAP Logo" class="w-10 h-10 object-contain">
+                <div>
+                    <span class="font-bold text-lg text-white">LAP <span class="text-cyan-400">Automation</span></span>
+                    <p class="text-gray-500 text-sm">© 2023 LAP Automation. All rights reserved.</p>
+                </div>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AOS Script -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            once: true,
+            offset: 100,
+            duration: 800,
+            easing: 'ease-out-cubic',
+        });
+    </script>
+</body>
+</html>
+
