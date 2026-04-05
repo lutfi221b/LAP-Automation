@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Canvas Documentation - MagClaw</title>
+    <link href="https://cdn.jsdelivr.net/npm/fontsource-inter@5.0.18/400.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fontsource-inter@5.0.18/500.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fontsource-inter@5.0.18/600.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fontsource-inter@5.0.18/700.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            line-height: 1.5;
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .nav-bar h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .nav-bar .version-badge {
+            background: #6366f1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .agent-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .agent-selector button {
+            padding: 6px 14px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .agent-selector button:hover {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .agent-selector button.active {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .main-content {
+            margin-top: 60px;
+            padding: 24px;
+        }
+
+        .canvas-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .agent-canvas {
+            display: none;
+            background: white;
+            border: 2px solid #1a1a2e;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .agent-canvas.active {
+            display: block;
+        }
+
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: #f8f9fb;
+            border-bottom: 2px solid #1a1a2e;
+        }
+
+        .canvas-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .canvas-header .header-fields {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .canvas-header .header-fields span {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .canvas-header .header-fields strong {
+            color: #1a1a2e;
+        }
+
+        .canvas-team-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .team-editorial { background: #dbeafe; color: #1d4ed8; }
+        .team-data { background: #dcfce7; color: #15803d; }
+        .team-outreach { background: #fef3c7; color: #b45309; }
+        .team-social { background: #f3e8ff; color: #7c3aed; }
+        .team-executive { background: #fee2e2; color: #dc2626; }
+        .team-intelligence { background: #e0e7ff; color: #4338ca; }
+
+        .canvas-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            min-height: 500px;
+        }
+
+        .canvas-cell {
+            padding: 16px;
+            border-right: 1px solid #1a1a2e;
+            border-bottom: 1px solid #1a1a2e;
+            position: relative;
+        }
+
+        .canvas-cell:last-child {
+            border-right: none;
+        }
+
+        .cell-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cell-title .icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cell-subtitle {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 12px;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .cell-content {
+            font-size: 12px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .cell-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .cell-content ul li {
+            padding: 3px 0;
+            padding-left: 14px;
+            position: relative;
+        }
+
+        .cell-content ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #6366f1;
+            font-weight: bold;
+        }
+
+        .cell-content .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            font-size: 11px;
+            margin: 2px;
+            color: #475569;
+        }
+
+        /* Grid positioning */
+        .cell-business { grid-column: 1; grid-row: 1 / 3; }
+        .cell-persona { grid-column: 2; grid-row: 1; }
+        .cell-problem { grid-column: 2; grid-row: 2; }
+        .cell-role { grid-column: 3; grid-row: 1 / 3; }
+        .cell-skills { grid-column: 4; grid-row: 1; }
+        .cell-tools { grid-column: 4; grid-row: 2; }
+        .cell-communication { grid-column: 5; grid-row: 1 / 3; }
+        .cell-collaboration { grid-column: 1 / 4; grid-row: 3; }
+        .cell-security { grid-column: 4 / 6; grid-row: 3; }
+
+        .canvas-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            background: #f8f9fb;
+            border-top: 1px solid #e2e8f0;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .canvas-footer .cc-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cc-badge svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .print-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 24px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transition: all 0.2s;
+            z-index: 100;
+        }
+
+        .print-btn:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+        }
+
+        .all-canvases-btn {
+            padding: 8px 16px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        @media print {
+            .nav-bar, .print-btn, .all-canvases-btn { display: none; }
+            .main-content { margin-top: 0; padding: 0; }
+            .agent-canvas { display: block !important; page-break-after: always; margin-bottom: 20px; }
+            .canvas-container { max-width: 100%; }
+        }
+
+        @media (max-width: 768px) {
+            .canvas-body {
+                grid-template-columns: 1fr;
+            }
+            .cell-business, .cell-persona, .cell-problem, .cell-role,
+            .cell-skills, .cell-tools, .cell-communication,
+            .cell-collaboration, .cell-security {
+                grid-column: 1;
+                grid-row: auto;
+            }
+            .agent-selector { display: none; }
+        }
+
+        .input-output-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 11px;
+        }
+
+        .input-output-table th, .input-output-table td {
+            padding: 4px 8px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .input-output-table th {
+            background: #f8f9fb;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .highlight-box {
+            background: #f0fdf4;
+            border-left: 3px solid #22c55e;
+            padding: 8px 12px;
+            margin: 8px 0;
+            border-radius: 0 4px 4px 0;
+            font-size: 11px;
+        }
+
+        .cron-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #fef3c7;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #92400e;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav-bar">
+    <div style="display:flex;align-items:center;gap:16px;">
+        <h1>🧩 Agent Canvas</h1>
+        <span class="version-badge">MagClaw v3.0</span>
+    </div>
+    <div class="agent-selector" id="agentSelector"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+        <button class="all-canvases-btn" onclick="showAll()">📄 View All</button>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="canvas-container" id="canvasContainer"></div>
+</div>
+
+<button class="print-btn" onclick="window.print()">🖨️ Print / Export PDF</button>
+
+<script>
+const agents = [
+    {
+        name: "Chef Editor",
+        version: "v3.0",
+        team: "Editorial",
+        teamClass: "team-editorial",
+        business: "Editorial content review, validation & publication pipeline. Manual article editing, QA checks, and publishing workflow need to be re-imagined with automated quality gates.",
+        persona: "• Editorial Team Lead<br>• Content Managers<br>• SEO Strategists<br>• MagClaw Orchestrator",
+        problem: "• Inconsistent content quality across multilingual publications<br>• Manual editorial bottlenecks slowing publication<br>• Lack of systematic fact-checking<br>• No centralized brand voice gatekeeper",
+        role: "<strong>Team lead & gatekeeper</strong> for Editorial Team. Reviews, validates, fact-checks, and publishes all content. Ensures alignment with GEO reports, maintains editorial standards, and produces daily/weekly reports to MagClaw. Acts as final quality gate before publication.",
+        skills: "• Advanced editing & proofreading<br>• Fact-checking & verification<br>• SEO on-page optimization<br>• Style guide enforcement<br>• QA & approve/reject decisions<br>• Publishing workflow management<br>• Report generation",
+        tools: "• WordPress REST API<br>• QA Checklist System<br>• ClickUp (tasks)<br>• Memory/Knowledge Base<br>• Claude Sonnet (low-temp)<br>• GEO reports<br>• Internal linking tools",
+        communication: "<strong>Input:</strong> Article drafts from Webdesigner, GEO reports, QA checklists<br><br><strong>Output:</strong> Published articles, revision requests, daily/weekly reports<br><br><strong>Format:</strong> Markdown, WordPress CMS, structured reports<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily 02:00</span> Review/Publish<br><span class='cron-badge'>Fri 18:00</span> Weekly Report",
+        collaboration: "<strong>Upstream:</strong> Webdesigner (drafts), GEO Technician (SEO strategy), Journalist (content)<br><strong>Downstream:</strong> Translation Agent (triggers multilingual publish), MagClaw (reports)<br><strong>Human-in-Loop:</strong> Editorial managers for exception handling, strategic content decisions",
+        security: "• WordPress admin credentials via IronClaw Vault (scoped tokens)<br>• Content authenticity verification (no AI hallucinations)<br>• Fact-checking against trusted sources<br>• GDPR compliance for personal data<br>• Brand safety: no controversial claims<br>• Audit trail for all publish/revision decisions"
+    },
+    {
+        name: "GEO Technician",
+        version: "v3.0",
+        team: "Editorial",
+        teamClass: "team-editorial",
+        business: "SEO/GEO strategy, SERP analysis, multilingual keyword research. Traditional SEO research and keyword planning across 5 languages need to be re-imagined with data-driven automation.",
+        persona: "• SEO Specialists<br>• Content Strategists<br>• Researchers<br>• Researcher Agent<br>• Translation Agent",
+        problem: "• Manual multi-market SEO research is time-consuming<br>• Lack of data-driven topic prioritization<br>• Inconsistent keyword localization across languages<br>• No systematic SERP analysis at scale<br>• Missing analytics-content strategy connection",
+        role: "<strong>SEO/GEO Strategist</strong> providing multi-frequency intelligence: bi-weekly topic lists, monthly full reports, bi-monthly strategic analysis. Conducts SERP analysis, multilingual keyword clustering, and GSC performance monitoring to guide content creation across 5 markets (FR/EN/ES/BG/DE).",
+        skills: "• SEO/GEO research & strategy<br>• SERP analysis & competitor intel<br>• Multilingual keyword clustering<br>• Google Search Console analysis<br>• Multi-frequency reporting<br>• Topic prioritization<br>• Market-level SEO localization",
+        tools: "• Google Search Console API<br>• DataForSEO, Ahrefs, SEMrush<br>• Web Search (Bing/Google)<br>• Analytics APIs<br>• PostgreSQL/Supabase<br>• GPT-4o (analysis)<br>• Keyword research tools",
+        communication: "<strong>Input:</strong> GSC data, SERP results, analytics reports<br><br><strong>Output:</strong> Topic lists, SEO reports, keyword sets per market<br><br><strong>Format:</strong> Structured JSON, markdown reports, keyword spreadsheets<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Every 48h</span> Quick insights<br><span class='cron-badge'>Bi-weekly Mon</span> Topic lists<br><span class='cron-badge'>Monthly</span> Full report<br><span class='cron-badge'>Bi-monthly</span> Strategic",
+        collaboration: "<strong>Upstream:</strong> Analytics Agent (performance data), GSC/GA4 APIs<br><strong>Downstream:</strong> Researcher (topic lists), Translation Agent (keyword sets)<br><strong>Peer:</strong> MagClaw (strategic reports)<br><strong>Human-in-Loop:</strong> SEO managers for strategy validation",
+        security: "• API credentials via IronClaw Vault (GSC, Ahrefs, SEMrush)<br>• Rate limiting to avoid API bans<br>• Data privacy for proprietary keyword strategies<br>• Compliance with search engine ToS<br>• Secure storage of competitive intelligence"
+    },
+    {
+        name: "Researcher",
+        version: "v3.0",
+        team: "Editorial",
+        teamClass: "team-editorial",
+        business: "Content intelligence gathering, RSS monitoring, web scraping, briefing creation. Manual research and source discovery for content creation need to be re-imagined with automated intelligence pipelines.",
+        persona: "• Content Researchers<br>• Journalists<br>• Intelligence Analysts<br>• Journalist Agent<br>• Chef Editor",
+        problem: "• Time-consuming manual RSS feed monitoring<br>• Inefficient source discovery and validation<br>• Lack of systematic content briefing<br>• Missing internal link opportunities<br>• No centralized research repository",
+        role: "<strong>Content Intelligence Agent</strong> that scrapes RSS feeds and targeted websites, organizes sources, stores findings in database, and produces documented content briefs for Journalists. Conducts deep research on GEO priority topics bi-weekly. Identifies internal linking opportunities.",
+        skills: "• Advanced web scraping & RSS parsing<br>• Source discovery & validation<br>• Research synthesis & summarization<br>• Content briefing creation<br>• Internal link identification<br>• Database organization<br>• Multi-source cross-referencing",
+        tools: "• RSS Feed parsers<br>• Firecrawl (web scraping)<br>• Supabase (storage)<br>• Web Search APIs<br>• Claude Sonnet (synthesis)<br>• Memory/Knowledge Base<br>• PostgreSQL",
+        communication: "<strong>Input:</strong> GEO topic lists, RSS feeds, targeted site URLs<br><br><strong>Output:</strong> Content briefs, source databases, research summaries<br><br><strong>Format:</strong> Structured markdown briefs, JSON datasets, source lists<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily 01:00</span> Scrape + Store<br><span class='cron-badge'>Bi-weekly</span> Deep research",
+        collaboration: "<strong>Upstream:</strong> GEO Technician (topic priorities), RSS feeds, web sources<br><strong>Downstream:</strong> Journalist (content briefs), DB Manager (data storage)<br><strong>Peer:</strong> Scraping Agent (energy prices), Data Team (source sharing)<br><strong>Human-in-Loop:</strong> Researchers for source validation",
+        security: "• Respect robots.txt and scraping ethics<br>• Rate limiting to avoid server overload<br>• Source credibility verification (no fake news)<br>• Copyright compliance (fair use)<br>• Database security via IronClaw Vault"
+    },
+    {
+        name: "Journalist",
+        version: "v3.0",
+        team: "Editorial",
+        teamClass: "team-editorial",
+        business: "Long-form article writing, storytelling, content synthesis. Manual article writing from research to final draft needs to be re-imagined with AI-assisted content creation pipelines.",
+        persona: "• Journalists<br>• Content Writers<br>• Copywriters<br>• Chef Editor<br>• Webdesigner",
+        problem: "• Slow article production from brief to draft<br>• Inconsistent integration of SEO requirements<br>• Poor internal linking strategies<br>• Lack of storytelling coherence<br>• Time-consuming source synthesis",
+        role: "<strong>Article Writer</strong> producing long-form, SEO-optimized content from Researcher briefs and GEO reports. Crafts compelling narratives, integrates internal/external links, maintains editorial tone, and delivers publication-ready drafts. Also synthesizes interview data from Outreach Journalist.",
+        skills: "• Long-form writing (1500-3000 words)<br>• Storytelling & narrative structure<br>• Source synthesis & fact integration<br>• Internal linking strategy<br>• SEO content optimization<br>• Editorial tone consistency<br>• Interview synthesis<br>• Markdown formatting",
+        tools: "• Anthropic API (Claude Sonnet)<br>• WordPress Draft API<br>• Memory/Knowledge Base<br>• Researcher briefs<br>• GEO reports<br>• Internal link database<br>• Documentation tools",
+        communication: "<strong>Input:</strong> Content briefs from Researcher, GEO reports, interview datasets<br><br><strong>Output:</strong> Full article drafts with internal links, markdown format<br><br><strong>Format:</strong> Markdown, structured articles with headings, links, metadata<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily 01:30</span> Write article<br><span class='cron-badge'>Event</span> Interview synthesis",
+        collaboration: "<strong>Upstream:</strong> Researcher (briefs), GEO Technician (SEO guidance), Outreach Journalist (interviews)<br><strong>Downstream:</strong> Webdesigner (formatting), Chef Editor (review)<br><strong>Peer:</strong> Translation Agent (multilingual versions)<br><strong>Human-in-Loop:</strong> Editors for tone adjustments",
+        security: "• Fact verification against trusted sources<br>• No plagiarism (original content only)<br>• Proper attribution for all external sources<br>• GDPR compliance for personal data mentions<br>• Brand voice consistency<br>• No AI hallucinations or false claims"
+    },
+    {
+        name: "Webdesigner / Publisher",
+        version: "v3.0",
+        team: "Editorial",
+        teamClass: "team-editorial",
+        business: "Visual content creation, CMS formatting, SEO on-page optimization. Manual image creation, CMS upload, and metadata entry need to be re-imagined with AI-powered visual and publishing automation.",
+        persona: "• Web Designers<br>• Content Publishers<br>• Visual Designers<br>• Chef Editor<br>• Journalist",
+        problem: "• Time-consuming manual image generation<br>• Inconsistent CMS formatting across articles<br>• Missing or poor metadata for SEO<br>• Slow publication workflow<br>• Lack of visual content strategy alignment",
+        role: "<strong>Visual + CMS Formatting Specialist</strong> generating AI images (Flux.1/DALL-E), structuring WordPress CMS entries, setting titles/slugs/metadata, optimizing on-page SEO, and submitting formatted drafts to Chef Editor. Ensures visual-brand alignment and technical SEO compliance.",
+        skills: "• AI image generation (Flux.1, DALL-E 3)<br>• WordPress CMS publishing<br>• SEO on-page optimization<br>• Metadata creation (title, slug, desc)<br>• Internal linking implementation<br>• Image optimization (size, format, alt)<br>• CMS structure & formatting<br>• Unsplash fallback sourcing",
+        tools: "• WordPress REST API<br>• Flux.1 / DALL-E APIs<br>• Unsplash API<br>• GPT-4o / GPT-4o mini<br>• SEO plugins (Yoast/RankMath)<br>• Media Library management<br>• Image optimization tools",
+        communication: "<strong>Input:</strong> Article drafts from Journalist, image prompts, SEO requirements<br><br><strong>Output:</strong> Formatted CMS drafts with images, metadata, internal links<br><br><strong>Format:</strong> WordPress post objects, optimized images, JSON metadata<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily 01:45</span> Generate + Format",
+        collaboration: "<strong>Upstream:</strong> Journalist (article drafts), GEO Technician (SEO keywords)<br><strong>Downstream:</strong> Chef Editor (review/approval), Translation Agent<br><strong>Peer:</strong> Meme Creator (V2 - visual coordination)<br><strong>Human-in-Loop:</strong> Designers for image approval",
+        security: "• WordPress credentials via IronClaw Vault<br>• Image copyright compliance (AI or licensed)<br>• No inappropriate/biased visual content<br>• Brand safety in image generation<br>• Alt text accessibility compliance<br>• API rate limiting for image generation"
+    },
+    {
+        name: "Translation Agent",
+        version: "v3.0",
+        team: "Editorial",
+        teamClass: "team-editorial",
+        business: "Multilingual SEO translation & localization (FR·EN·ES·BG·DE). Manual translation and multilingual SEO optimization need to be re-imagined with neural translation and cultural adaptation pipelines.",
+        persona: "• Localization Managers<br>• SEO Specialists<br>• International Content Teams<br>• Chef Editor<br>• GEO Technician",
+        problem: "• Slow manual translation across 5 languages<br>• Mechanical translations lacking cultural adaptation<br>• Missing SEO localization per market<br>• Inconsistent hreflang implementation<br>• No systematic keyword adaptation per language",
+        role: "<strong>Multilingual SEO Localization Agent</strong> translating every published article into 4 additional languages (FR/EN/ES/BG/DE) within 30 minutes. Performs cultural adaptation, SEO localization using GEO keyword sets per market, and publishes with correct hreflang tags via WPML/Polylang.",
+        skills: "• Neural machine translation (5 languages)<br>• Cultural adaptation & localization<br>• Market-level SEO keyword integration<br>• Hreflang tag implementation<br>• Multilingual slug/metadata creation<br>• WordPress multilingual publishing<br>• QA for translations<br>• 30-minute SLA delivery",
+        tools: "• WordPress REST API<br>• DeepL API / Google Translate<br>• WPML / Polylang plugins<br>• Claude Sonnet / GPT-4o<br>• GEO keyword sets (per market)<br>• Memory (translation glossary)<br>• Supabase (translation cache)",
+        communication: "<strong>Input:</strong> Published articles (English), GEO keyword sets<br><br><strong>Output:</strong> 4 translated versions with localized SEO, hreflang tags<br><br><strong>Format:</strong> WordPress multilingual posts, JSON metadata<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Post-publish</span> Within 30 min<br><span class='cron-badge'>Bi-weekly</span> Keyword updates",
+        collaboration: "<strong>Upstream:</strong> Chef Editor (published articles), GEO Technician (keyword sets)<br><strong>Downstream:</strong> WordPress (multilingual sites)<br><strong>Peer:</strong> All Editorial agents (content consistency)<br><strong>Human-in-Loop:</strong> Native speakers for quality checks",
+        security: "• WordPress API credentials via IronClaw Vault<br>• Translation accuracy (no meaning changes)<br>• Cultural sensitivity per market<br>• SEO compliance (no keyword stuffing)<br>• GDPR compliance for translated data<br>• Brand voice consistency across languages"
+    },
+    {
+        name: "Lead Sourcing Agent",
+        version: "v3.0",
+        team: "Outreach",
+        teamClass: "team-outreach",
+        business: "B2B lead acquisition, company data scraping, Europe-focused prospecting. Manual B2B prospecting and lead list building need to be re-imagined with automated company discovery pipelines.",
+        persona: "• Sales Development Reps<br>• Business Development<br>• Lead Generators<br>• Directory Agent<br>• Outreach Enrichment",
+        problem: "• Time-consuming manual lead research<br>• Inconsistent data quality from multiple sources<br>• Lack of systematic European market coverage<br>• No automated company discovery<br>• Duplicate or outdated lead information",
+        role: "<strong>B2B Lead Acquisition Specialist</strong> scraping LinkedIn, corporate registries, and industry sites to extract ~50 new European companies weekly. Performs structured data extraction, handles pagination, validates data quality, and stores raw leads in staging database for Directory Agent enrichment.",
+        skills: "• Advanced web scraping (LinkedIn, registries)<br>• Structured data extraction<br>• Source discovery & validation<br>• Pagination handling<br>• Data quality validation<br>• European market research<br>• Corporate data parsing<br>• Deduplication (basic)",
+        tools: "• Firecrawl API<br>• Apify API<br>• Corporate registries APIs<br>• LinkedIn scraping tools<br>• GPT-4o mini / Claude Haiku<br>• PostgreSQL (staging DB)<br>• Browser automation",
+        communication: "<strong>Input:</strong> Target criteria (industry, location, size), source URLs<br><br><strong>Output:</strong> Structured lead data (company, URL, contacts, metadata)<br><br><strong>Format:</strong> JSON records in staging database, structured CSV<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Wed 03:00</span> ~50 new companies",
+        collaboration: "<strong>Upstream:</strong> LinkedIn, corporate registries, industry directories<br><strong>Downstream:</strong> Directory Agent (enrichment + publish), Outreach Enrichment<br><strong>Peer:</strong> Scraping Agent (energy data), DB Manager (schema)<br><strong>Human-in-Loop:</strong> Sales team for lead quality feedback",
+        security: "• Compliance with LinkedIn ToS and scraping ethics<br>• GDPR compliance for EU company data<br>• Rate limiting to avoid IP bans<br>• No personal data without consent<br>• Secure storage of scraped data<br>• Respect robots.txt and website terms"
+    },
+    {
+        name: "Directory Agent",
+        version: "v3.0",
+        team: "Outreach",
+        teamClass: "team-outreach",
+        business: "B2B directory enrichment, deduplication, WordPress publishing. Manual directory management and data enrichment need to be re-imagined with automated enrichment and publishing pipelines.",
+        persona: "• Directory Managers<br>• Data Curators<br>• CRM Administrators<br>• Lead Sourcing Agent<br>• Outreach Team",
+        problem: "• Duplicate entries in B2B directory<br>• Inconsistent data formatting<br>• Missing enrichment (contacts, details)<br>• Slow manual publishing to WordPress<br>• Poor data quality control",
+        role: "<strong>Directory Publisher & Enrichment Agent</strong> receiving raw leads from Lead Sourcing, performing data cleaning, normalization, deduplication, enrichment, and publishing to WordPress Broker Directory as custom post types. Alerts Outreach Team when new companies are published.",
+        skills: "• Data cleaning & normalization<br>• Deduplication algorithms<br>• Schema validation<br>• Data enrichment (contacts, details)<br>• WordPress custom post publishing<br>• Quality control checks<br>• Alert/notification systems<br>• Database management",
+        tools: "• PostgreSQL/Supabase<br>• WordPress Custom Post API<br>• Search APIs (validation)<br>• GPT-4o mini (enrichment)<br>• Data validation libraries<br>• Deduplication algorithms<br>• Outreach notification system",
+        communication: "<strong>Input:</strong> Raw lead data from Lead Sourcing Agent<br><br><strong>Output:</strong> Enriched directory entries, publish confirmations, alerts<br><br><strong>Format:</strong> WordPress custom post objects, JSON datasets, alerts<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Wed 04:30</span> Enrich + Publish",
+        collaboration: "<strong>Upstream:</strong> Lead Sourcing Agent (raw leads)<br><strong>Downstream:</strong> Outreach Enrichment Agent, WordPress (Broker Directory)<br><strong>Peer:</strong> DB Manager (data integrity), Scraping Agent<br><strong>Human-in-Loop:</strong> Directory managers for quality control",
+        security: "• GDPR compliance for company/personal data<br>• WordPress credentials via IronClaw Vault<br>• Data accuracy verification<br>• No publishing of sensitive information<br>• Secure API calls and data transfer<br>• Audit trail for all directory changes"
+    },
+    {
+        name: "Enrichment Agent",
+        version: "v3.0",
+        team: "Outreach",
+        teamClass: "team-outreach",
+        business: "Deep company profiling, contact discovery, firmographic data enrichment. Manual research for detailed company and contact profiles needs to be re-imagined with multi-source intelligence aggregation.",
+        persona: "• SDRs (Sales Dev Reps)<br>• Account Executives<br>• Outreach Writers<br>• Directory Agent<br>• Outreach Writer Agent",
+        problem: "• Shallow lead data limits personalization<br>• Missing key decision-maker contacts<br>• No firmographic context for targeting<br>• Time-consuming manual company research<br>• Incomplete data for outreach sequences",
+        role: "<strong>Deep Profiling Specialist</strong> that takes directory entries and enriches them with detailed firmographic data, key contact identification, technology stack analysis, recent news/funding events, and personalized context for outreach. Creates comprehensive company profiles for the Outreach Writer.",
+        skills: "• Deep web research & OSINT<br>• Contact discovery & verification<br>• Firmographic data extraction<br>• Technology stack analysis<br>• News & event monitoring<br>• Company profiling synthesis<br>• Data validation & scoring<br>• Multi-source cross-referencing",
+        tools: "• Hunter.io / Apollo API<br>• Clearbit / Crunchbase APIs<br>• BuiltWith API<br>• News APIs<br>• GPT-4o (synthesis)<br>• LinkedIn Sales Navigator<br>• Company registries",
+        communication: "<strong>Input:</strong> Company URLs from Directory Agent<br><br><strong>Output:</strong> Enriched company profiles with contacts, firmographics, context<br><br><strong>Format:</strong> Structured JSON profiles, enriched database records<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily 05:00</span> Enrich new entries",
+        collaboration: "<strong>Upstream:</strong> Directory Agent (company list), web sources<br><strong>Downstream:</strong> Outreach Writer Agent (personalized sequences)<br><strong>Peer:</strong> Lead Sourcing Agent (data quality feedback)<br><strong>Human-in-Loop:</strong> Sales team for profile accuracy validation",
+        security: "• GDPR compliance for contact data<br>• API credentials via IronClaw Vault<br>• Data accuracy and freshness monitoring<br>• No storage of sensitive personal data<br>• Compliance with data provider ToS<br>• Secure enrichment pipeline"
+    },
+    {
+        name: "Outreach Writer",
+        version: "v3.0",
+        team: "Outreach",
+        teamClass: "team-outreach",
+        business: "Personalized email sequence creation, outreach copywriting, multi-touch campaign design. Manual email writing and campaign creation need to be re-imagined with AI-powered personalization at scale.",
+        persona: "• SDRs (Sales Dev Reps)<br>• Marketing Teams<br>• Outreach Journalist<br>• Enrichment Agent<br>• CRM/Follow-Up Agent",
+        problem: "• Generic outreach emails get poor response rates<br>• Time-consuming personalization for each prospect<br>• No systematic A/B testing of sequences<br>• Lack of context-aware messaging<br>• Inconsistent follow-up cadences",
+        role: "<strong>Outreach Copywriter</strong> creating highly personalized email sequences based on enriched company profiles. Crafts compelling subject lines, personalized opening hooks, value propositions, and multi-touch follow-up sequences. Performs A/B testing and optimizes based on response data.",
+        skills: "• Personalized email copywriting<br>• Subject line optimization<br>• Multi-touch sequence design<br>• A/B testing methodology<br>• Response analysis & iteration<br>• Tone & brand voice consistency<br>• CTA optimization<br>• Spam compliance (CAN-SPAM/GDPR)",
+        tools: "• Enriched company profiles<br>• GPT-4o (copywriting)<br>• Email API (SendGrid/Postmark)<br>• A/B testing framework<br>• Response tracking system<br>• Memory (successful templates)<br>• Analytics data",
+        communication: "<strong>Input:</strong> Enriched profiles from Enrichment Agent, campaign parameters<br><br><strong>Output:</strong> Personalized email sequences (3-5 touches)<br><br><strong>Format:</strong> HTML email templates, plain text versions, subject lines<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily 06:00</span> Generate sequences<br><span class='cron-badge'>Weekly</span> A/B analysis",
+        collaboration: "<strong>Upstream:</strong> Enrichment Agent (company profiles), campaign briefs<br><strong>Downstream:</strong> Email sending system, CRM/Follow-Up Agent<br><strong>Peer:</strong> Outreach Journalist (content collaboration)<br><strong>Human-in-Loop:</strong> Marketing managers for sequence approval",
+        security: "• CAN-SPAM and GDPR compliance<br>• No spammy or misleading content<br>• Proper opt-out mechanisms<br>• Secure email API credentials<br>• Brand safety in all messaging<br>• Data privacy for prospect information"
+    },
+    {
+        name: "Interview Agent",
+        version: "v3.0",
+        team: "Outreach",
+        teamClass: "team-outreach",
+        business: "Expert interview coordination, question generation, transcription & synthesis. Manual interview scheduling, preparation, and post-interview processing need to be re-imagined with automated coordination pipelines.",
+        persona: "• Journalists<br>• Content Researchers<br>• Outreach Journalist<br>• Journalist Agent<br>• Chef Editor",
+        problem: "• Time-consuming interview scheduling<br>• Lack of structured question preparation<br>• Slow transcription and synthesis<br>• Missing follow-up question generation<br>• No systematic knowledge extraction from interviews",
+        role: "<strong>Interview Coordinator & Synthesizer</strong> that manages the full interview lifecycle: schedules interviews with identified experts, generates tailored question sets based on company profiles and GEO topics, transcribes interviews, extracts key insights, and produces structured briefs for the Journalist Agent.",
+        skills: "• Interview scheduling & coordination<br>• Question set generation<br>• Transcription & summarization<br>• Insight extraction & synthesis<br>• Follow-up question generation<br>• Expert identification & outreach<br>• Knowledge base integration<br>• Multi-language support",
+        tools: "• Calendar API (scheduling)<br>• Zoom/Meet API (recording)<br>• Otter.ai / Whisper API<br>• GPT-4o (synthesis)<br>• Email API (coordination)<br>• Memory/Knowledge Base<br>• CRM integration",
+        communication: "<strong>Input:</strong> Expert contacts, topic briefs, company profiles<br><br><strong>Output:</strong> Scheduled interviews, transcriptions, insight summaries<br><br><strong>Format:</strong> Structured interview briefs, transcribed text, key insights JSON<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Event-driven</span> Per interview<br><span class='cron-badge'>Daily</span> Processing queue",
+        collaboration: "<strong>Upstream:</strong> Enrichment Agent (expert identification), GEO Technician (topics)<br><strong>Downstream:</strong> Journalist Agent (article synthesis), Chef Editor<br><strong>Peer:</strong> Outreach Journalist (human interview support)<br><strong>Human-in-Loop:</strong> Journalists for live interviews, expert relationship management",
+        security: "• Interview consent and recording permissions<br>• GDPR compliance for interview data<br>• Secure storage of recordings and transcripts<br>• Anonymization when required<br>• Expert data privacy protection<br>• Secure API credentials via IronClaw Vault"
+    },
+    {
+        name: "CRM / Follow-Up Agent",
+        version: "v3.0",
+        team: "Outreach",
+        teamClass: "team-outreach",
+        business: "Lead lifecycle management, automated follow-ups, response tracking, pipeline management. Manual CRM updates and follow-up scheduling need to be re-imagined with intelligent automation.",
+        persona: "• SDRs<br>• Account Executives<br>• Sales Managers<br>• Outreach Writer Agent<br>• Directory Agent",
+        problem: "• Leads fall through cracks without follow-up<br>• Manual CRM updates are error-prone<br>• No intelligent response prioritization<br>• Inconsistent follow-up cadences<br>• Missing pipeline visibility",
+        role: "<strong>CRM Automation & Follow-Up Manager</strong> that tracks all outreach interactions, manages lead lifecycle stages, schedules intelligent follow-ups based on response behavior, updates CRM records automatically, and alerts the team to hot leads requiring immediate attention.",
+        skills: "• Lead lifecycle management<br>• Response tracking & classification<br>• Intelligent follow-up scheduling<br>• CRM data synchronization<br>• Pipeline stage management<br>• Response sentiment analysis<br>• Priority scoring & alerting<br>• Activity logging & reporting",
+        tools: "• HubSpot / Salesforce API<br>• Email tracking APIs<br>• GPT-4o (sentiment analysis)<br>• Calendar API<br>• Notification system<br>• PostgreSQL (activity log)<br>• Analytics dashboard",
+        communication: "<strong>Input:</strong> Email responses, engagement data, CRM updates<br><br><strong>Output:</strong> Follow-up actions, CRM updates, priority alerts<br><br><strong>Format:</strong> CRM records, notification alerts, activity logs<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Continuous</span> Response monitoring<br><span class='cron-badge'>Hourly</span> Follow-up scheduling<br><span class='cron-badge'>Daily</span> Pipeline report",
+        collaboration: "<strong>Upstream:</strong> Outreach Writer Agent (sent emails), email responses<br><strong>Downstream:</strong> Sales team (hot lead alerts), reporting systems<br><strong>Peer:</strong> Directory Agent (lead status sync)<br><strong>Human-in-Loop:</strong> SDRs for personal follow-ups on hot leads",
+        security: "• CRM credentials via IronClaw Vault<br>• GDPR compliance for lead data<br>• Data encryption in transit and at rest<br>• Role-based access control<br>• Audit logging for all CRM actions<br>• Secure API integrations"
+    },
+    {
+        name: "Outreach Journalist",
+        version: "v3.0",
+        team: "Outreach",
+        teamClass: "team-outreach",
+        business: "Human-led expert outreach, relationship building, interview coordination, content collaboration. Manual journalist outreach and relationship management need to be re-imagined with semi-automated coordination.",
+        persona: "• Journalists<br>• PR Specialists<br>• Content Partners<br>• Journalist Agent<br>• Interview Agent",
+        problem: "• Time-consuming journalist relationship building<br>• Lack of systematic expert network development<br>• Inefficient pitch and collaboration processes<br>• Missing content partnership opportunities<br>• No centralized expert database",
+        role: "<strong>Human Journalist & Relationship Manager</strong> who conducts high-value outreach to journalists, industry experts, and thought leaders. Builds relationships, coordinates interviews (with Interview Agent support), and creates collaborative content. Serves as the human face of the outreach operation.",
+        skills: "• Expert relationship building<br>• Journalist outreach & pitching<br>• Interview conducting<br>• Content collaboration<br>• Network development<br>• Industry knowledge<br>• Personalized communication<br>• Partnership negotiation",
+        tools: "• Email / LinkedIn<br>• CRM system<br>• Interview Agent support<br>• Calendly (scheduling)<br>• Contact database<br>• Content briefs from Journalist Agent<br>• Industry monitoring tools",
+        communication: "<strong>Input:</strong> Target expert lists, content topics, company profiles<br><br><strong>Output:</strong> Scheduled interviews, collaborative content, relationships<br><br><strong>Format:</strong> Emails, interview recordings, collaborative articles<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily</span> Outreach activities<br><span class='cron-badge'>Weekly</span> Relationship review",
+        collaboration: "<strong>Upstream:</strong> Enrichment Agent (expert lists), GEO Technician (topics)<br><strong>Downstream:</strong> Interview Agent (coordination), Journalist Agent (content)<br><strong>Peer:</strong> All Editorial agents<br><strong>Human-in-Loop:</strong> Primary human operator",
+        security: "• Contact data privacy (GDPR)<br>• Professional communication standards<br>• Secure storage of relationship data<br>• Consent management for interviews<br>• Professional reputation management"
+    },
+    {
+        name: "Analytics Agent",
+        version: "v3.0",
+        team: "Data",
+        teamClass: "team-data",
+        business: "Performance analytics, traffic monitoring, conversion tracking, multi-channel attribution. Manual analytics reporting and data analysis need to be re-imagined with automated intelligence dashboards.",
+        persona: "• Data Analysts<br>• Marketing Managers<br>• GEO Technician<br>• KPI Monitor<br>• Monetization Advisor",
+        problem: "• Fragmented data across multiple platforms<br>• Time-consuming manual report generation<br>• Lack of actionable insights from data<br>• No automated anomaly detection<br>• Missing cross-channel attribution",
+        role: "<strong>Performance Analytics Engine</strong> that aggregates data from GA4, GSC, social platforms, email campaigns, and CRM. Produces automated reports, detects anomalies, identifies trends, and provides actionable insights for all teams. Serves as the central data intelligence hub.",
+        skills: "• Multi-source data aggregation<br>• Statistical analysis & trend detection<br>• Anomaly detection & alerting<br>• Cross-channel attribution<br>• Automated report generation<br>• Data visualization<br>• Predictive analytics<br>• ROI calculation",
+        tools: "• GA4 API<br>• Google Search Console API<br>• Social media APIs<br>• Email platform APIs<br>• CRM data<br>• PostgreSQL/Supabase<br>• GPT-4o (insight generation)<br>• Visualization libraries",
+        communication: "<strong>Input:</strong> GA4, GSC, social, email, CRM data streams<br><br><strong>Output:</strong> Analytics reports, anomaly alerts, trend insights<br><br><strong>Format:</strong> JSON datasets, markdown reports, dashboard data<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily 07:00</span> Performance report<br><span class='cron-badge'>Real-time</span> Anomaly alerts<br><span class='cron-badge'>Weekly</span> Deep analysis",
+        collaboration: "<strong>Upstream:</strong> All data sources (GA4, GSC, social, email, CRM)<br><strong>Downstream:</strong> GEO Technician, KPI Monitor, Monetization Advisor<br><strong>Peer:</strong> DB Manager (data storage), all team agents<br><strong>Human-in-Loop:</strong> Data analysts for insight validation",
+        security: "• API credentials via IronClaw Vault<br>• Data privacy and GDPR compliance<br>• Secure data aggregation pipeline<br>• Access control for analytics data<br>• No exposure of sensitive metrics<br>• Data retention policy enforcement"
+    },
+    {
+        name: "KPI Monitor",
+        version: "v3.0",
+        team: "Executive",
+        teamClass: "team-executive",
+        business: "KPI tracking, goal monitoring, performance dashboards, executive reporting. Manual KPI tracking and performance monitoring need to be re-imagined with automated goal management.",
+        persona: "• Executive Team<br>• Project Managers<br>• Team Leads<br>• MagClaw Orchestrator<br>• Analytics Agent",
+        problem: "• No centralized KPI tracking across teams<br>• Manual performance monitoring is reactive<br>• Missing early warning for goal deviation<br>• No automated executive reporting<br>• Lack of team-level performance visibility",
+        role: "<strong>Performance Monitoring & Goal Tracking Agent</strong> that monitors all team KPIs against targets, generates real-time dashboards, alerts when metrics deviate from goals, and produces executive summaries. Acts as the system's central performance oversight mechanism.",
+        skills: "• KPI definition & tracking<br>• Goal monitoring & alerting<br>• Performance dashboard generation<br>• Trend analysis & forecasting<br>• Executive summary creation<br>• Cross-team performance comparison<br>• Anomaly detection<br>• OKR alignment",
+        tools: "• Analytics Agent (data source)<br>• Dashboard framework<br>• Alert system<br>• GPT-4o (summary generation)<br>• PostgreSQL (KPI storage)<br>• Notification APIs<br>• Visualization tools",
+        communication: "<strong>Input:</strong> KPI data from Analytics Agent, team performance data<br><br><strong>Output:</strong> KPI dashboards, deviation alerts, executive summaries<br><br><strong>Format:</strong> Dashboard data, alert notifications, executive reports<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Hourly</span> KPI check<br><span class='cron-badge'>Daily 08:00</span> Performance report<br><span class='cron-badge'>Weekly</span> Executive summary",
+        collaboration: "<strong>Upstream:</strong> Analytics Agent (performance data), all team agents<br><strong>Downstream:</strong> MagClaw Orchestrator, Executive team<br><strong>Peer:</strong> Monetization Advisor (financial KPIs)<br><strong>Human-in-Loop:</strong> Executives for goal setting and review",
+        security: "• Secure dashboard access (RBAC)<br>• Executive data confidentiality<br>• Alert system security<br>• API credentials via IronClaw Vault<br>• Data integrity monitoring<br>• Audit trail for KPI changes"
+    },
+    {
+        name: "Monetization Advisor",
+        version: "v3.0",
+        team: "Executive",
+        teamClass: "team-executive",
+        business: "Revenue optimization, monetization strategy, pricing analysis, ROI tracking. Manual monetization planning and revenue optimization need to be re-imagined with data-driven financial intelligence.",
+        persona: "• Business Development<br>• Revenue Teams<br>• Marketing Managers<br>• KPI Monitor<br>• Analytics Agent",
+        problem: "• Missing systematic monetization strategy<br>• No data-driven pricing optimization<br>• Lack of revenue forecasting<br>• Inefficient ad placement strategies<br>• No ROI tracking per content piece",
+        role: "<strong>Revenue & Monetization Strategist</strong> that analyzes revenue streams, optimizes ad placements, tracks ROI per content piece, provides pricing recommendations, and develops monetization strategies. Combines analytics data with market intelligence to maximize revenue.",
+        skills: "• Revenue stream analysis<br>• Ad placement optimization<br>• Pricing strategy & modeling<br>• ROI calculation & tracking<br>• Revenue forecasting<br>• Market rate analysis<br>• Affiliate strategy<br>• Subscription modeling",
+        tools: "• Analytics Agent (performance data)<br>• Ad platform APIs<br>• Financial modeling tools<br>• GPT-4o (strategy generation)<br>• Market research data<br>• PostgreSQL (revenue tracking)<br>• Dashboard frameworks",
+        communication: "<strong>Input:</strong> Revenue data, traffic data, market rates, cost data<br><br><strong>Output:</strong> Monetization strategies, pricing recommendations, ROI reports<br><br><strong>Format:</strong> Strategy documents, pricing models, ROI dashboards<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Weekly</span> Revenue report<br><span class='cron-badge'>Monthly</span> Strategy review<br><span class='cron-badge'>Quarterly</span> Pricing optimization",
+        collaboration: "<strong>Upstream:</strong> Analytics Agent (traffic/revenue data), market data<br><strong>Downstream:</strong> Executive team, KPI Monitor<br><strong>Peer:</strong> All revenue-related agents<br><strong>Human-in-Loop:</strong> Business development for strategy approval",
+        security: "• Financial data confidentiality<br>• Revenue data encryption<br>• API credentials via IronClaw Vault<br>• Secure financial reporting<br>• Access control for financial data<br>• Compliance with financial regulations"
+    },
+    {
+        name: "Scraping Agent",
+        version: "v3.0",
+        team: "Data",
+        teamClass: "team-data",
+        business: "Continuous multi-language web scraping, energy price monitoring, structured data extraction. Manual data collection from multiple international sources needs to be re-imagined with 24/7 automated scraping.",
+        persona: "• Data Analysts<br>• Market Researchers<br>• Intelligence Teams<br>• DB Manager<br>• Researcher",
+        problem: "• Fragmented energy price data across countries<br>• Time-consuming manual multi-language scraping<br>• Inconsistent metadata and source tracking<br>• No real-time price monitoring<br>• Lack of structured historical data",
+        role: "<strong>Continuous Intelligence Scraper</strong> performing multi-language web scraping 24/7, monitoring energy prices by country, extracting structured content with full metadata and source links. Stores all data in PostgreSQL with timestamps for historical analysis and Market Intelligence reporting.",
+        skills: "• Multi-language web scraping<br>• Energy price extraction & normalization<br>• Metadata tagging & source tracking<br>• Pagination & dynamic content handling<br>• Data synthesis & cleaning<br>• Link extraction & validation<br>• Currency conversion & standardization<br>• Historical data archiving",
+        tools: "• Firecrawl API<br>• Apify API<br>• RSS Feed parsers<br>• Energy price APIs<br>• GPT-4o mini / Claude Haiku<br>• PostgreSQL/Supabase<br>• Currency conversion APIs",
+        communication: "<strong>Input:</strong> Target URLs, RSS feeds, energy price sources<br><br><strong>Output:</strong> Structured energy prices, scraped articles, metadata, source links<br><br><strong>Format:</strong> JSON records with timestamps, currency, country codes<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily 06:00</span> Continuous monitoring",
+        collaboration: "<strong>Upstream:</strong> Energy price websites, RSS feeds, news sources<br><strong>Downstream:</strong> DB Manager (storage), Market Intelligence Agent (V2), Researcher<br><strong>Peer:</strong> Lead Sourcing Agent (scraping coordination)<br><strong>Human-in-Loop:</strong> Data analysts for quality checks",
+        security: "• Respect robots.txt and scraping ethics<br>• Rate limiting to avoid server overload<br>• Source attribution and copyright compliance<br>• Data accuracy verification<br>• Secure storage of scraped data<br>• API key security via IronClaw Vault"
+    },
+    {
+        name: "DB Manager Agent",
+        version: "v3.0",
+        team: "Data",
+        teamClass: "team-data",
+        business: "Database management, schema design, ETL, indexing, data integrity. Manual database maintenance and optimization need to be re-imagined with automated database governance.",
+        persona: "• Database Administrators<br>• Data Engineers<br>• System Architects<br>• All agents (shared service)<br>• MagClaw Orchestrator",
+        problem: "• Database performance degradation<br>• Schema inconsistencies across teams<br>• Manual indexing and optimization<br>• Data duplication and integrity issues<br>• Lack of centralized database governance",
+        role: "<strong>Database Management Specialist</strong> organizing all PostgreSQL/Supabase databases across the system. Handles schema management, ETL processes, indexing, deduplication, documentation, and monitoring. Ensures data availability and integrity for all teams.",
+        skills: "• PostgreSQL/Supabase administration<br>• Schema design & management<br>• ETL pipeline orchestration<br>• Indexing & query optimization<br>• Deduplication algorithms<br>• Data integrity validation<br>• Performance monitoring<br>• Automated backup & recovery",
+        tools: "• Supabase API<br>• PostgreSQL admin tools<br>• ETL frameworks<br>• Monitoring dashboards<br>• Rule-based logic + light LLM<br>• Logging systems<br>• Backup automation tools",
+        communication: "<strong>Input:</strong> Database queries, schema change requests, data from all agents<br><br><strong>Output:</strong> Integrity reports, availability confirmations, performance metrics<br><br><strong>Format:</strong> SQL queries, JSON datasets, structured reports, logs<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily 07:00</span> Integrity check + indexing<br><span class='cron-badge'>Continuous</span> Agent requests",
+        collaboration: "<strong>Upstream:</strong> All agents (data storage needs)<br><strong>Downstream:</strong> All agents (data retrieval)<br><strong>Peer:</strong> All Data Team agents, shared services<br><strong>Human-in-Loop:</strong> DBAs for complex schema changes",
+        security: "• Database credentials via IronClaw Vault<br>• GDPR compliance for all stored data<br>• Data encryption at rest and in transit<br>• Role-based access control (RBAC)<br>• Audit logging for all operations<br>• Backup and disaster recovery<br>• SQL injection prevention"
+    },
+    {
+        name: "Social Writer V2",
+        version: "v2.0",
+        team: "Social Media",
+        teamClass: "team-social",
+        business: "Social media content creation, platform-specific optimization, scheduling, engagement. Manual social media content creation and scheduling need to be re-imagined with AI-powered multi-platform publishing.",
+        persona: "• Social Media Managers<br>• Content Marketers<br>• Brand Managers<br>• Chef Editor<br>• Translation Agent",
+        problem: "• Time-consuming multi-platform content creation<br>• Inconsistent brand voice across platforms<br>• No optimal posting time optimization<br>• Missing engagement prediction<br>• Lack of platform-specific optimization",
+        role: "<strong>Social Media Content Specialist</strong> creating platform-optimized content for LinkedIn, Twitter, Instagram, and other channels. Converts published articles into engaging social posts, schedules optimal publishing times, predicts engagement, and adapts content per platform best practices.",
+        skills: "• Multi-platform content creation<br>• Platform-specific optimization<br>• Hashtag strategy & research<br>• Engagement prediction<br>• Optimal timing analysis<br>• Visual content coordination<br>• Social listening<br>• A/B testing for social content",
+        tools: "• Social media APIs<br>• Published article feed<br>• GPT-4o (content generation)<br>• Scheduling tools<br>• Analytics data<br>• Image generation APIs<br>• Hashtag research tools",
+        communication: "<strong>Input:</strong> Published articles from Chef Editor, platform guidelines<br><br><strong>Output:</strong> Social media posts, scheduled content, engagement predictions<br><br><strong>Format:</strong> Platform-specific posts, media assets, scheduling data<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Post-publish</span> Content generation<br><span class='cron-badge'>Daily</span> Scheduling",
+        collaboration: "<strong>Upstream:</strong> Chef Editor (published articles), Translation Agent (multilingual)<br><strong>Downstream:</strong> Social media platforms, Analytics Agent<br><strong>Peer:</strong> Meme Creator (V2), all Editorial agents<br><strong>Human-in-Loop:</strong> Social media managers for content approval",
+        security: "• Social media API credentials via IronClaw Vault<br>• Brand safety in all content<br>• No controversial or sensitive posts<br>• Platform ToS compliance<br>• Engagement data privacy<br>• Secure scheduling pipeline"
+    },
+    {
+        name: "Market Intelligence V2",
+        version: "v2.0",
+        team: "Intelligence",
+        teamClass: "team-intelligence",
+        business: "Market trend analysis, competitive intelligence, industry monitoring, strategic insights. Manual market research and competitive analysis need to be re-imagined with continuous intelligence gathering.",
+        persona: "• Strategy Teams<br>• Business Development<br>• Executive Team<br>• GEO Technician<br>• Monetization Advisor",
+        problem: "• Reactive rather than proactive market awareness<br>• Fragmented competitive intelligence<br>• No systematic trend detection<br>• Missing industry shift early warnings<br>• Lack of strategic foresight",
+        role: "<strong>Strategic Market Intelligence Agent</strong> continuously monitoring market trends, competitor activities, industry shifts, and emerging opportunities. Synthesizes data from Scraping Agent, Analytics Agent, and external sources to produce strategic intelligence reports and early warning alerts.",
+        skills: "• Market trend analysis<br>• Competitive intelligence gathering<br>• Industry shift detection<br>• Strategic insight synthesis<br>• Early warning alerting<br>• Opportunity identification<br>• Risk assessment<br>• Scenario modeling",
+        tools: "• Scraping Agent (energy/market data)<br>• Analytics Agent (performance data)<br>• News APIs<br>• Market research databases<br>• GPT-4o (insight synthesis)<br>• PostgreSQL (intelligence store)<br>• Alert system",
+        communication: "<strong>Input:</strong> Market data, competitor data, industry news, analytics<br><br><strong>Output:</strong> Intelligence reports, trend alerts, strategic insights<br><br><strong>Format:</strong> Intelligence briefs, alert notifications, strategic reports<br><br><strong>Frequency:</strong><br><span class='cron-badge'>Daily 09:00</span> Market update<br><span class='cron-badge'>Real-time</span> Trend alerts<br><span class='cron-badge'>Weekly</span> Strategic report",
+        collaboration: "<strong>Upstream:</strong> Scraping Agent, Analytics Agent, news sources<br><strong>Downstream:</strong> Executive team, GEO Technician, Monetization Advisor<br><strong>Peer:</strong> All intelligence-related agents<br><strong>Human-in-Loop:</strong> Strategy teams for insight validation",
+        security: "• Competitive data confidentiality<br>• Secure intelligence storage<br>• API credentials via IronClaw Vault<br>• Source attribution and verification<br>• No exposure of strategic plans<br>• Compliance with data usage policies"
+    }
+];
+
+const agentIcons = {
+    "Chef Editor": "✍️",
+    "GEO Technician": "🎯",
+    "Researcher": "🔍",
+    "Journalist": "📝",
+    "Webdesigner / Publisher": "🎨",
+    "Translation Agent": "🌍",
+    "Lead Sourcing Agent": "🎯",
+    "Directory Agent": "📁",
+    "Enrichment Agent": "🔬",
+    "Outreach Writer": "📧",
+    "Interview Agent": "🎙️",
+    "CRM / Follow-Up Agent": "📊",
+    "Outreach Journalist": "",
+    "Analytics Agent": "📈",
+    "KPI Monitor": "🏆",
+    "Monetization Advisor": "💰",
+    "Scraping Agent": "🕷️",
+    "DB Manager Agent": "🗄️",
+    "Social Writer V2": "📱",
+    "Market Intelligence V2": "🧠"
+};
+
+function init() {
+    const selector = document.getElementById('agentSelector');
+    const container = document.getElementById('canvasContainer');
+
+    agents.forEach((agent, index) => {
+        // Create selector button
+        const btn = document.createElement('button');
+        btn.textContent = `${agentIcons[agent.name] || '🤖'} ${agent.name}`;
+        btn.className = index === 0 ? 'active' : '';
+        btn.onclick = () => showAgent(index);
+        selector.appendChild(btn);
+
+        // Create canvas
+        const canvas = document.createElement('div');
+        canvas.className = `agent-canvas ${index === 0 ? 'active' : ''}`;
+        canvas.id = `canvas-${index}`;
+        canvas.innerHTML = `
+            <div class="canvas-header">
+                <div>
+                    <h2>${agentIcons[agent.name] || '🤖'} ${agent.name}</h2>
+                </div>
+                <div class="header-fields">
+                    <span>Agent name: <strong>${agent.name}</strong></span>
+                    <span>Version: <strong>${agent.version}</strong></span>
+                    <span class="canvas-team-badge ${agent.teamClass}">${agent.team}</span>
+                </div>
+            </div>
+            <div class="canvas-body">
+                <div class="canvas-cell cell-business">
+                    <div class="cell-title">
+                        <span class="icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                        </span>
+                        Business Process
+                    </div>
+                    <div class="cell-subtitle">Which business process(es) / sub-process(es) need to be re-imagined?</div>
+                    <div class="cell-content">${agent.business}</div>
+                </div>
+                <div class="canvas-cell cell-persona">
+                    <div class="cell-title">
+                        <span class="icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </span>
+                        User persona
+                    </div>
+                    <div class="cell-subtitle">Which user persona will use and work with this agent?</div>
+                    <div class="cell-content">${agent.persona}</div>
+                </div>
+                <div class="canvas-cell cell-problem">
+                    <div class="cell-title">
+                        <span class="icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </span>
+                        Problem
+                    </div>
+                    <div class="cell-subtitle">What problems are you solving with this agent?</div>
+                    <div class="cell-content">${agent.problem}</div>
+                </div>
+                <div class="canvas-cell cell-role">
+                    <div class="cell-title">
+                        <span class="icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                        </span>
+                        Role
+                    </div>
+                    <div class="cell-subtitle">Define the role of this agent. What will it do? How does it solve the problems?</div>
+                    <div class="cell-content">${agent.role}</div>
+                </div>
+                <div class="canvas-cell cell-skills">
+                    <div class="cell-title">
+                        <span class="icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93L12 22"/><path d="M8 6a4 4 0 0 1 4-4"/><circle cx="12" cy="6" r="2"/></svg>
+                        </span>
+                        Skills
+                    </div>
+                    <div class="cell-subtitle">What skills shall this agent provide?</div>
+                    <div class="cell-content">${agent.skills}</div>
+                </div>
+                <div class="canvas-cell cell-tools">
+                    <div class="cell-title">
+                        <span class="icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                        </span>
+                        Tools
+                    </div>
+                    <div class="cell-subtitle">Which tools will need to be used by this agent?</div>
+                    <div class="cell-content">${agent.tools}</div>
+                </div>
+                <div class="canvas-cell cell-communication">
+                    <div class="cell-title">
+                        <span class="icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </span>
+                        Communication
+                    </div>
+                    <div class="cell-subtitle">What are the communication modalities, formats, interactivity for this agent?</div>
+                    <div class="cell-content">${agent.communication}</div>
+                </div>
+                <div class="canvas-cell cell-collaboration">
+                    <div class="cell-title">
+                        <span class="icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                        </span>
+                        Collaboration
+                    </div>
+                    <div class="cell-subtitle">What are the expected collaborations with users/Human-In-The-Loop and other agents?</div>
+                    <div class="cell-content">${agent.collaboration}</div>
+                </div>
+                <div class="canvas-cell cell-security">
+                    <div class="cell-title">
+                        <span class="icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </span>
+                        Security & Safety
+                    </div>
+                    <div class="cell-subtitle">What are the key security and safety requirements which need to be fulfilled by this agent?</div>
+                    <div class="cell-content">${agent.security}</div>
+                </div>
+            </div>
+            <div class="canvas-footer">
+                <div class="cc-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12a4 4 0 1 0 8 0 4 4 0 1 0-8 0"/></svg>
+                    <span>Agent Canvas © 2025 by Sanjeev Kumar — CC BY 4.0</span>
+                </div>
+                <div>DESIGNED BY: Sanjeev Kumar | MagClaw Documentation</div>
+            </div>
+        `;
+        container.appendChild(canvas);
+    });
+}
+
+function showAgent(index) {
+    document.querySelectorAll('.agent-canvas').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.agent-selector button').forEach(b => b.classList.remove('active'));
+    document.getElementById(`canvas-${index}`).classList.add('active');
+    document.querySelectorAll('.agent-selector button')[index].classList.add('active');
+}
+
+function showAll() {
+    document.querySelectorAll('.agent-canvas').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.agent-selector button').forEach(b => b.classList.remove('active'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+init();
+</script>
+
+</body>
+</html>
+
